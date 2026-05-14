@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI聊天</title>
+    <style>
+        body{ /* 设置页面整体布局为弹性布局（Flexbox） */
+            display: flex; /* 启用弹性盒子模型，使子元素可以灵活布局 */
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* 高度设置为视口(viewport)高度的100% */
+            background-color: #f0f0f0;
+        }
+        div{ /* div元素的样式定义 */
+            background-color: #fff;
+            padding: 20px; /* 设置内边距为20像素 */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 添加轻微的阴影效果 */
+        }
+        input{ /* input元素的样式定义 */
+            width: 300px;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px; /* 内边距设置为5像素 */
+            margin-right: 10px; /* 右外边距设置为10像素 */
+        }
+        button{ /* 按钮样式设置 */
+            padding: 5px 10px;
+            background-color: #007bff; /* 背景颜色设置为蓝色 */
+            color: #fff; /* 文字颜色设置为白色 */
+            border: none; /* 无边框 */
+            border-radius: 5px;
+            cursor: pointer; /* 鼠标悬停时显示手型光标 */
+        }
+        p{
+            margin-top: 20px; /* 上外边距设置为20像素 */
+            font-size: 18px; /* 字体大小设置为18像素 */
+        }
+    </style>
+</head>
+<body>
+<div>
+<input type="text" id="question" placeholder="请输入你的问题">
+  <button onclick="askAI()">提问</button> <!-- 提问按钮，点击后触发askAI函数 -->
+  <p id="answer"></p>
+  <script src="config.js"></script>
+  <script>// AI API密钥，用于身份验证
+    async function askAI(){ /**     * 异步函数，用于向AI提问并获取回答     * 当用户点击提问按钮时触发此函数     */
+      const question = document.getElementById("question").value // 获取问题输入框的值
+      const answerEL = document.getElementById("answer"); // 获取回答显示元素
+      answerEL.innerHTML = "思考中...";
+
+      try {
+        const response =await fetch("https://api.siliconflow.cn/v1/chat/completions",{ // 发送POST请求到AI接口
+          method:'POST', // 请求方法为POST
+          headers:{ // 设置请求头
+            "Authorization": `Bearer ${API_KEY}`, // 认证token
+            "Content-Type": "application/json" // 内容类型为JSON
+          },
+          body: JSON.stringify({ // 将请求体转换为JSON字符串
+          model: "deepseek-ai/DeepSeek-V3", // 使用的AI模型
+          messages: [{"role":"user","content":question}],
+          max_tokens: 500 // 最大令牌数
+        })
+        });
+        const data = await response.json(); // 解析响应数据
+        answerEL.innerHTML = data.choices[0].message.content;
+      }catch (error){ // 捕获可能的错误
+        answerEL.innerHTML = "出错了,请稍后重试";
+        console.error(error)
+      }
+    }
+  </script>
+</div>
+</body>
+</html>
